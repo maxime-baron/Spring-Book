@@ -26,5 +26,5 @@ public record UpdateBookRequest(
         LocalDate publishedAt,
 
         @Min(0) @Max(5)
-        Short rating
+        Double rating
 ) {}

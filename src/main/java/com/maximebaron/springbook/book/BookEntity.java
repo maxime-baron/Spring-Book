@@ -48,7 +48,7 @@ public class BookEntity {
     private LocalDate publishedAt;
 
     @Column(nullable = false)
-    private Integer rating;
+    private Double rating;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

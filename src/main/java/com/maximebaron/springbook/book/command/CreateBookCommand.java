@@ -21,5 +21,5 @@ public record CreateBookCommand(
 
         @NotNull
         @Min(0) @Max(5)
-        Short rating
+        Double rating
 ) {}

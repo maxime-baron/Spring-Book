@@ -15,7 +15,7 @@ public record BookResponse (
         BookFormat format,
         Integer pages,
         LocalDate publishedAt,
-        Integer rating,
+        Double rating,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ){}
