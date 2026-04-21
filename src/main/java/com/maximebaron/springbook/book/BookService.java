@@ -1,8 +1,8 @@
 package com.maximebaron.springbook.book;
 
 import com.maximebaron.springbook.book.command.CreateBookCommand;
+import com.maximebaron.springbook.book.command.FindBooksQuery;
 import com.maximebaron.springbook.book.command.UpdateBookCommand;
-import com.maximebaron.springbook.book.dto.BookFilterRequest;
 import com.maximebaron.springbook.book.exception.BookAlreadyExistsException;
 import com.maximebaron.springbook.book.exception.BookNotFoundException;
 import jakarta.validation.Valid;
@@ -26,20 +26,20 @@ public class BookService {
     private final BookMapper bookMapper;
 
     @Transactional(readOnly = true)
-    public Page<BookEntity> findAll(BookFilterRequest filters, Pageable pageable) {
-        Specification<BookEntity> spec = (root, query, cb) -> cb.conjunction();
+    public Page<BookEntity> findAll(@Valid FindBooksQuery filters, Pageable pageable) {
+        Specification<BookEntity> spec = (_, _, cb) -> cb.conjunction();
 
         if (filters.title() != null && !filters.title().isBlank()) {
-            spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("title")), "%" + filters.title().toLowerCase() + "%"));
+            spec = spec.and((root, _, cb) -> cb.like(cb.lower(root.get("title")), "%" + filters.title().toLowerCase() + "%"));
         }
         if (filters.author() != null && !filters.author().isBlank()) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("author"), filters.author()));
+            spec = spec.and((root, _, cb) -> cb.equal(root.get("author"), filters.author()));
         }
         if (filters.genre() != null) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("genre"), filters.genre()));
+            spec = spec.and((root, _, cb) -> cb.equal(root.get("genre"), filters.genre()));
         }
         if (filters.format() != null) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("format"), filters.format()));
+            spec = spec.and((root, _, cb) -> cb.equal(root.get("format"), filters.format()));
         }
 
         return bookRepository.findAll(spec, pageable);

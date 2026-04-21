@@ -1,11 +1,12 @@
 package com.maximebaron.springbook.book;
 
 import com.maximebaron.springbook.book.command.CreateBookCommand;
+import com.maximebaron.springbook.book.command.FindBooksQuery;
 import com.maximebaron.springbook.book.command.UpdateBookCommand;
 import com.maximebaron.springbook.book.dto.BookResponse;
 import com.maximebaron.springbook.book.dto.CreateBookRequest;
-import com.maximebaron.springbook.book.dto.BookFilterRequest;
-import com.maximebaron.springbook.book.dto.PageableRequest;
+import com.maximebaron.springbook.book.dto.BookFilterParams;
+import com.maximebaron.springbook.book.dto.PageableParams;
 import com.maximebaron.springbook.book.dto.UpdateBookRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,9 +32,10 @@ public class BookRestController {
     @GetMapping
     @Operation(summary = "Retrieves list of books", description = "Retrieves a paginated list of books with filtering.")
     public Page<BookResponse> getAll(
-            @ParameterObject @ModelAttribute BookFilterRequest filters,
-            @ParameterObject @ModelAttribute PageableRequest pageableRequest) {
-        return bookService.findAll(filters, pageableRequest.toPageable()).map(bookMapper::toBookResponse);
+            @ParameterObject @ModelAttribute @Valid BookFilterParams filters,
+            @ParameterObject @ModelAttribute @Valid PageableParams pageableParams) {
+        FindBooksQuery query = bookMapper.toFindBooksQuery(filters);
+        return bookService.findAll(query, pageableParams.toPageable()).map(bookMapper::toBookResponse);
     }
 
     @GetMapping("/{isbn}")
@@ -52,10 +54,10 @@ public class BookRestController {
         return bookMapper.toBookResponse(newBook);
     }
 
-    @PutMapping("/{isbn}")
+    @PatchMapping("/{isbn}")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Update a book", description = "Updates information for a specific book.")
-    public BookResponse put(@Valid @PathVariable String isbn, @RequestBody UpdateBookRequest book) {
+    public BookResponse patch(@Valid @PathVariable String isbn, @RequestBody UpdateBookRequest book) {
         UpdateBookCommand command = bookMapper.toUpdateBookCommand(book);
         BookEntity newBook = bookService.updateBook(command, isbn);
         return bookMapper.toBookResponse(newBook);

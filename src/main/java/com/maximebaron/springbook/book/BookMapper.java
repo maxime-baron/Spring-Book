@@ -1,7 +1,9 @@
 package com.maximebaron.springbook.book;
 
 import com.maximebaron.springbook.book.command.CreateBookCommand;
+import com.maximebaron.springbook.book.command.FindBooksQuery;
 import com.maximebaron.springbook.book.command.UpdateBookCommand;
+import com.maximebaron.springbook.book.dto.BookFilterParams;
 import com.maximebaron.springbook.book.dto.BookResponse;
 import com.maximebaron.springbook.book.dto.CreateBookRequest;
 import com.maximebaron.springbook.book.dto.UpdateBookRequest;
@@ -16,6 +18,7 @@ public interface BookMapper {
     BookResponse toBookResponse(BookEntity entity);
     CreateBookCommand toCreateBookCommand(CreateBookRequest request);
     UpdateBookCommand toUpdateBookCommand(UpdateBookRequest request);
+    FindBooksQuery toFindBooksQuery(BookFilterParams params);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromCommand(UpdateBookCommand command, @MappingTarget BookEntity entity);
