@@ -1,6 +1,5 @@
-package com.maximebaron.springbook.config;
+package com.maximebaron.springbook.shared.exception;
 
-import com.maximebaron.springbook.shared.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -20,7 +19,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
     public ProblemDetail handleBusinessException(BusinessException ex) {
-        return ProblemDetail.forStatusAndDetail(ex.getStatus(), ex.getMessage());
+        HttpStatus status = mapErrorCodeToStatus(ex.getErrorCode());
+        return ProblemDetail.forStatusAndDetail(status, ex.getMessage());
+    }
+
+    private HttpStatus mapErrorCodeToStatus(ErrorCode errorCode) {
+        return switch (errorCode) {
+            case RESOURCE_ALREADY_EXISTS -> HttpStatus.CONFLICT;
+            case RESOURCE_NOT_FOUND -> HttpStatus.NOT_FOUND;
+            case GENERIC_ERROR -> HttpStatus.BAD_REQUEST;
+        };
     }
 
 }
