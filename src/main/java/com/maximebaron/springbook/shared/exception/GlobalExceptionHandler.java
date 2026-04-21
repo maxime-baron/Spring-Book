@@ -3,13 +3,16 @@ package com.maximebaron.springbook.shared.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
-public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleAny(Exception ex) {
@@ -23,6 +26,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ProblemDetail.forStatusAndDetail(status, ex.getMessage());
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ProblemDetail handleValidation(MethodArgumentNotValidException ex) {
+        ProblemDetail body = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Validation failed");
+        List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> new FieldError(error.getField(), error.getDefaultMessage()))
+                .collect(Collectors.toList());
+        body.setProperty("errors", fieldErrors);
+        return body;
+    }
+
     private HttpStatus mapErrorCodeToStatus(ErrorCode errorCode) {
         return switch (errorCode) {
             case RESOURCE_ALREADY_EXISTS -> HttpStatus.CONFLICT;
@@ -30,5 +43,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             case GENERIC_ERROR -> HttpStatus.BAD_REQUEST;
         };
     }
+
+    public record FieldError(String field, String message) {}
 
 }
