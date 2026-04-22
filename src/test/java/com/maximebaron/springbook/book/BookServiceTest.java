@@ -1,8 +1,8 @@
 package com.maximebaron.springbook.book;
 
 import com.maximebaron.springbook.book.command.CreateBookCommand;
+import com.maximebaron.springbook.book.command.FindBooksQuery;
 import com.maximebaron.springbook.book.command.UpdateBookCommand;
-import com.maximebaron.springbook.book.dto.BookFilterRequest;
 import com.maximebaron.springbook.book.exception.BookAlreadyExistsException;
 import com.maximebaron.springbook.book.exception.BookNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -76,7 +76,7 @@ class BookServiceTest {
 
         @Test
         void noFilters_returnsRepositoryResult() {
-            BookFilterRequest filters = new BookFilterRequest(null, null, null, null);
+            FindBooksQuery filters = new FindBooksQuery(null, null, null, null);
             Page<BookEntity> expected = new PageImpl<>(List.of(new BookEntity()));
 
             when(bookRepository.findAll(any(Specification.class), eq(pageable)))
@@ -90,7 +90,7 @@ class BookServiceTest {
 
         @Test
         void withTitle_passesSpecificationToRepository() {
-            BookFilterRequest filters = new BookFilterRequest("dune", null, null, null);
+            FindBooksQuery filters = new FindBooksQuery("dune", null, null, null);
             when(bookRepository.findAll(any(Specification.class), eq(pageable)))
                     .thenReturn(Page.empty());
 
@@ -104,7 +104,7 @@ class BookServiceTest {
         @ParameterizedTest(name = "title=\"{0}\", author=\"{1}\"")
         @MethodSource("blankFilterProvider")
         void withBlankFilter_treatsAsNoFilter(String title, String author) {
-            BookFilterRequest filters = new BookFilterRequest(title, author, null, null);
+            FindBooksQuery filters = new FindBooksQuery(title, author, null, null);
             when(bookRepository.findAll(any(Specification.class), eq(pageable)))
                     .thenReturn(Page.empty());
 
@@ -123,7 +123,7 @@ class BookServiceTest {
 
         @Test
         void withMultipleFilters_callsRepositoryOnce() {
-            BookFilterRequest filters = new BookFilterRequest(
+            FindBooksQuery filters = new FindBooksQuery(
                     "dune", "Frank Herbert", BookGenre.SCIENCE, BookFormat.NOVEL
             );
             when(bookRepository.findAll(any(Specification.class), eq(pageable)))
@@ -137,7 +137,7 @@ class BookServiceTest {
         @Test
         void pageableIsForwardedToRepository() {
             Pageable customPage = PageRequest.of(2, 2, Sort.by(Sort.Direction.DESC, "author"));
-            BookFilterRequest filters = new BookFilterRequest(null, null, null, null);
+            FindBooksQuery filters = new FindBooksQuery(null, null, null, null);
             when(bookRepository.findAll(any(Specification.class), eq(customPage)))
                     .thenReturn(Page.empty());
 

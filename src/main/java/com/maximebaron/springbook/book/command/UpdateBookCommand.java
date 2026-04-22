@@ -9,20 +9,25 @@ import java.time.LocalDate;
 
 @Builder
 public record UpdateBookCommand(
-        @Size(min = 1)
+        @Size(min = 1, message = "The ISBN cannot be blank")
+        String isbn,
+
+        @Size(min = 1, message = "The title must be at least 1 character if provided")
         String title,
 
-        @Size(min = 1)
+        @Size(min = 1, message = "The author must be at least 1 character if provided")
         String author,
 
         String description,
         BookGenre genre,
         BookFormat format,
-        @Positive Integer pages,
 
-        @PastOrPresent
+        @Positive(message = "The number of pages cannot be less than 1")
+        Integer pages,
+
+        @PastOrPresent(message = "The publication date cannot be in the future")
         LocalDate publishedAt,
 
-        @Min(0) @Max(5)
+        @Min(value = 0, message = "The minimum value is 0") @Max(value = 5, message = "The maximum value is 5")
         Double rating
 ) {}
