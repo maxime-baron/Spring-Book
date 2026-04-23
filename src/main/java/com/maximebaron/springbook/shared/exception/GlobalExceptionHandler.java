@@ -29,9 +29,19 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidation(MethodArgumentNotValidException ex) {
         ProblemDetail body = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Validation failed");
+
         List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors().stream()
-                .map(error -> new FieldError(error.getField(), error.getDefaultMessage()))
+                .map(error -> {
+                    // Si c'est une erreur de conversion (type mismatch)
+                    if (error.isBindingFailure()) {
+                        String rejectedValue = error.getRejectedValue() != null ? error.getRejectedValue().toString() : "unknown";
+                        return new FieldError(error.getField(),
+                                String.format("Invalid value '%s' for parameter '%s'", rejectedValue, error.getField()));
+                    }
+                    return new FieldError(error.getField(), error.getDefaultMessage());
+                })
                 .collect(Collectors.toList());
+
         body.setProperty("errors", fieldErrors);
         return body;
     }
